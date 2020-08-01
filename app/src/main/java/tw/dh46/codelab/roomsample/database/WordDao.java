@@ -1,5 +1,6 @@
 package tw.dh46.codelab.roomsample.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
@@ -47,5 +48,24 @@ public interface WordDao {
      * @return
      */
     @Query("SELECT * FROM word_table ORDER BY word ASC")
-    List<Word> getAlphabetizedWords();
+    LiveData<List<Word>> getAlphabetizedWords();
+
+    /**
+     * LiveData class
+     * - 當資料有異動時，UI須即時更新，這代表我們必須觀察資料的變化。
+     * - 資料儲存方式的不同，可能會使得Observing與元件間的相依性變得很亂，
+     * 也讓測試與除錯變得不易。
+     * - LiveData有多種不同的用法，此練習只專注在與Room的搭配。
+     *
+     * 如何與Room結合?
+     * 在DAO方法的回傳類型中使用LiveData，Room會自動產生所有需要的CODE，
+     * 並在SQLite的資料有異動時，自動更新LiveData。(要在UI層中使用Observer來負責聽)
+     *
+     * 如果是自己另外使用LiveData，而不是與Room搭配，
+     * 要注意LiveData並沒有public的方法可以設值。
+     * 因此，請參考MutableLiveData這個類別，它有setValue/postValue兩種方法，
+     * 通常這個類別都是與ViewModel類搭配使用，
+     * 而ViewModel將只會expose immutable 的 LiveData 物件給Observer。
+     *
+     */
 }
