@@ -2,9 +2,11 @@ package tw.dh46.codelab.roomsample.database;
 
 import android.content.Context;
 
+import androidx.annotation.NonNull;
 import androidx.room.Database;
 import androidx.room.Room;
 import androidx.room.RoomDatabase;
+import androidx.sqlite.db.SupportSQLiteDatabase;
 
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -55,6 +57,7 @@ public abstract class WordRoomDatabase extends RoomDatabase {
                     // 第一次存取的時候會利用Builder來建立物件，並取名為word_database
                     INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
                             WordRoomDatabase.class, "word_database")
+                            .addCallback(sRoomDatabaseCallback)
                             .build();
                 }
             }
@@ -63,4 +66,36 @@ public abstract class WordRoomDatabase extends RoomDatabase {
     }
 
 
+    /**
+     * 產生DB的Callback
+     */
+    private static RoomDatabase.Callback sRoomDatabaseCallback = new Callback() {
+
+        @Override
+        public void onCreate(@NonNull SupportSQLiteDatabase db) {
+            super.onCreate(db);
+            // 第一次建立DB時做事
+            // 通常都是複寫這裡而已
+        }
+
+
+        @Override
+        public void onOpen(@NonNull SupportSQLiteDatabase db) {
+            super.onOpen(db);
+            // 每次開啟DB時做事
+            // 這次要練習的範例，是每次開啟都會清空資料，並增加兩個單字。
+            // 如果不要清空，請把下方註解
+            // 因為是操作DB所以一樣要用databaseWriteExecutor
+            // 在背景緒執行
+            databaseWriteExecutor.execute(() -> {
+                WordDao dao = INSTANCE.wordDao();
+                dao.deleteAll();
+
+                Word word = new Word("Hello");
+                dao.insert(word);
+                word = new Word("world");
+                dao.insert(word);
+            });
+        }
+    };
 }
