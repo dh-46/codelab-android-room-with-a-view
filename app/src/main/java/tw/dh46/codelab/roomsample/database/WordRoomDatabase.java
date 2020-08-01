@@ -39,7 +39,7 @@ public abstract class WordRoomDatabase extends RoomDatabase {
     private static volatile WordRoomDatabase INSTANCE;
     // 建立固定的背景緒限制，負責DB的背景非同步行為
     private static final int NUMBER_OF_THREADS = 4;
-    static final ExecutorService databaseWriteExecutor =
+    public static final ExecutorService databaseWriteExecutor =
             Executors.newFixedThreadPool(NUMBER_OF_THREADS);
 
     /**
@@ -48,7 +48,7 @@ public abstract class WordRoomDatabase extends RoomDatabase {
      * @param context
      * @return
      */
-    static WordRoomDatabase getDatabase(Context context) {
+    public static WordRoomDatabase getDatabase(Context context) {
         if (INSTANCE == null) {
             synchronized (WordRoomDatabase.class) {
                 if (INSTANCE == null) {
